@@ -6,7 +6,7 @@ from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNor
 from keras._tf_keras.keras.preprocessing.image import ImageDataGenerator
 
 
-INPUT_DIR = "assets/anh_gen"
+INPUT_DIR = "assets/anh_gen" # Folder anh train
 IMAGE_SIZE = (128, 128)
 BATCH_SIZE = 32
 EPOCH = 15

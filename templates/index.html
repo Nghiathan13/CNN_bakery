@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bakery Classifier</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+  </head>
+  <body>
+    <header>
+      <h1>Bakery Item Prediction</h1>
+      <p class="subtitle">
+        Upload an image of a bakery item to classify it and get its price.
+      </p>
+    </header>
+
+    <main>
+      <div class="container">
+        <div id="image-preview-container">
+          <i id="image-placeholder-icon" class="fas fa-image"></i>
+          <p class="drag-text">Drag & drop your image here</p>
+          <p class="file-types">Supports: PNG, JPG, WEBP</p>
+          <img id="image-preview" src="#" alt="Image Preview" />
+          <span id="remove-image-button" title="Remove image">&times;</span>
+        </div>
+
+        <div class="upload-container">
+          <input type="file" id="file-input" accept="image/*" />
+          <label for="file-input" class="upload-label"
+            ><i class="fas fa-folder-open"></i> Choose Image</label
+          >
+        </div>
+
+        <button id="predict-button">
+          <i class="fas fa-search"></i> <span>Predict</span>
+        </button>
+        <label
+          for="file-input"
+          class="upload-label"
+          id="another-image-button"
+          style="display: none"
+          ><i class="fas fa-sync-alt"></i> Another Image</label
+        >
+
+        <div id="result-container">
+          <h2>Prediction Result</h2>
+          <p><strong>🍰 Item:</strong> <span id="item-name"></span></p>
+          <p><strong>💵 Price:</strong> <span id="item-price"></span> VND</p>
+          <p>
+            <strong>✅ Confidence:</strong> <span id="item-confidence"></span>%
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 - UEH - NHL</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+  </body>
+</html>

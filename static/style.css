@@ -1,0 +1,280 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap");
+
+body {
+  font-family: "Montserrat", sans-serif;
+  background-color: #f8fafc;
+  background-image: linear-gradient(to right, #e2e8f0 1px, transparent 1px),
+    linear-gradient(to bottom, #e2e8f0 1px, transparent 1px),
+    radial-gradient(circle at 1% 1%, rgba(129, 140, 248, 0.15), transparent 30%),
+    radial-gradient(
+      circle at 99% 99%,
+      rgba(99, 102, 241, 0.15),
+      transparent 40%
+    );
+  background-size: 40px 40px, 40px 40px, 100% 100%, 100% 100%;
+  color: #334155;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 20px;
+  overflow: hidden; /* Disable scrolling */
+}
+
+header {
+  text-align: center;
+  padding: 40px 20px 20px;
+}
+
+main {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-grow: 1; /* Fill remaining space */
+  align-items: center; /* Vertically center content */
+}
+
+h1 {
+  background: linear-gradient(135deg, #4f46e5, #a855f7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  animation: fadeInDown 0.8s ease-out;
+}
+
+.subtitle {
+  color: #64748b;
+  font-size: 1.2rem;
+  margin: 0.5rem auto 0;
+  max-width: 700px; /* Increased width */
+  animation: fadeInUp 0.8s ease-out 0.3s backwards;
+}
+
+.container {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+  padding: 2rem 2.5rem;
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+  animation: fadeInUp 1s ease-out 0.6s backwards;
+}
+
+.upload-container {
+  /* margin-bottom is now on .upload-label */
+}
+
+#file-input {
+  display: none;
+}
+
+.upload-label {
+  background: #4f46e5;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.2);
+  color: white;
+  cursor: pointer;
+  display: inline-flex; /* Use flex for alignment */
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem; /* Match predict button */
+  font-weight: 600;
+  padding: 14px 28px; /* Match predict button */
+  transition: all 0.3s ease;
+  margin-bottom: 0;
+}
+
+.upload-label .fas {
+  margin-right: 8px;
+}
+
+.upload-label:hover {
+  background: #4338ca;
+  box-shadow: 0 7px 20px rgba(79, 70, 229, 0.3);
+  transform: translateY(-3px);
+}
+
+#image-preview-container {
+  margin-bottom: 1.5rem;
+  min-height: 250px;
+  border: 2px dashed #cbd5e1;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column; /* To stack icon and text */
+  justify-content: center;
+  align-items: center;
+  background-color: #f1f5f9;
+  position: relative; /* For positioning the remove button */
+  transition: border-color 0.3s;
+}
+
+#image-preview-container.dragover {
+  border-color: #4f46e5;
+}
+
+#image-preview {
+  max-width: 100%;
+  max-height: 250px;
+  display: none;
+  border-radius: 8px;
+}
+
+#image-placeholder-icon {
+  font-size: 64px;
+  color: #cbd5e1;
+  transition: color 0.3s;
+  margin-bottom: 1rem; /* Space below icon */
+}
+
+.drag-text {
+  color: #64748b;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+}
+
+.file-types {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+#remove-image-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 36px;
+  height: 36px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border-radius: 50%;
+  display: none; /* Hidden by default */
+  justify-content: center;
+  align-items: center;
+  font-size: 32px;
+  line-height: 36px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#remove-image-button:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+#predict-button {
+  background: #10b981;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+  color: white;
+  cursor: pointer;
+  display: inline-flex; /* Use flex for alignment */
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 14px 28px;
+  transition: all 0.3s ease;
+  margin-bottom: 0;
+  display: none; /* Hide by default */
+}
+
+#predict-button .fas {
+  margin-right: 8px;
+}
+
+#predict-button:hover {
+  background: #059669;
+  box-shadow: 0 7px 20px rgba(16, 185, 129, 0.3);
+  transform: translateY(-3px);
+}
+
+#another-image-button {
+  background-color: #64748b;
+}
+
+#another-image-button:hover {
+  background-color: #475569;
+}
+
+#result-container {
+  display: none;
+  text-align: left;
+  padding: 1.5rem;
+  border-left: 4px solid #a855f7;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  animation: fadeInUp 1s ease-out;
+  margin-top: 1.5rem; /* Add space above */
+}
+
+#result-container h2 {
+  color: #1e293b;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+#result-container p {
+  margin: 0.75rem 0 0;
+  font-size: 1.1rem;
+  color: #475569;
+}
+
+#result-container p strong {
+  color: #334155;
+}
+
+/* Keyframe Animations */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  header {
+    padding-top: 20px;
+  }
+  .container {
+    padding: 1.5rem;
+  }
+  h1 {
+    font-size: 2.2rem;
+  }
+  .subtitle {
+    font-size: 1rem;
+  }
+}
+
+footer {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  padding: 20px;
+  text-align: center;
+  width: 100%;
+}

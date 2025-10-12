@@ -1,6 +1,10 @@
 {
-  "banh_da_lon": 0,
-  "croissant": 1,
-  "egg_tart": 2,
-  "muffin_viet_quat": 3
+  "banh_chuoi_nuong": 0,
+  "banh_da_lon": 1,
+  "cha_bong_cay": 2,
+  "cookies_dua": 3,
+  "croissant": 4,
+  "egg_tart": 5,
+  "muffin_viet_quat": 6,
+  "patechaud": 7
 }
