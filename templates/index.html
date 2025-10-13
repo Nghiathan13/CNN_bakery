@@ -36,6 +36,9 @@
           <label for="file-input" class="upload-label"
             ><i class="fas fa-folder-open"></i> Choose Image</label
           >
+          <button id="camera-button" class="upload-label camera-btn">
+            <i class="fas fa-camera"></i> Open Camera
+          </button>
         </div>
 
         <button id="predict-button">
@@ -56,6 +59,19 @@
           <p>
             <strong>✅ Confidence:</strong> <span id="item-confidence"></span>%
           </p>
+        </div>
+
+        <!-- Camera View Container (Initially Hidden) -->
+        <div id="camera-container">
+          <video id="camera-video" autoplay playsinline></video>
+          <div class="camera-controls">
+            <button id="take-picture-button" class="upload-label">
+              <i class="fas fa-camera-retro"></i> Take Picture
+            </button>
+            <button id="close-camera-button" class="upload-label camera-btn">
+              <i class="fas fa-times"></i> Close
+            </button>
+          </div>
         </div>
       </div>
     </main>

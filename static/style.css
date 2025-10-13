@@ -1,5 +1,16 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap");
 
+html {
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
 body {
   font-family: "Montserrat", sans-serif;
   background-color: #f8fafc;
@@ -11,28 +22,27 @@ body {
       rgba(99, 102, 241, 0.15),
       transparent 40%
     );
-  background-size: 40px 40px, 40px 40px, 100% 100%, 100% 100%;
+  background-size: 2.5rem 2.5rem, 2.5rem 2.5rem, 100% 100%, 100% 100%;
   color: #334155;
   display: flex;
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
   margin: 0;
-  padding: 20px;
-  overflow: hidden; /* Disable scrolling */
+  padding: 1.25rem;
 }
 
 header {
   text-align: center;
-  padding: 40px 20px 20px;
+  padding: 2.5rem 1.25rem 1.25rem;
 }
 
 main {
   width: 100%;
   display: flex;
   justify-content: center;
-  flex-grow: 1; /* Fill remaining space */
-  align-items: center; /* Vertically center content */
+  flex-grow: 1;
+  align-items: center;
 }
 
 h1 {
@@ -50,65 +60,86 @@ h1 {
   color: #64748b;
   font-size: 1.2rem;
   margin: 0.5rem auto 0;
-  max-width: 700px; /* Increased width */
+  max-width: 43.75rem;
   animation: fadeInUp 0.8s ease-out 0.3s backwards;
 }
 
 .container {
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(0.625rem);
   background: rgba(255, 255, 255, 0.7);
-  border-radius: 24px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+  border-radius: 1.5rem;
+  box-shadow: 0 0.625rem 1.875rem rgba(0, 0, 0, 0.07);
   padding: 2rem 2.5rem;
   text-align: center;
-  max-width: 500px;
+  max-width: 35rem; /* 560px */
   width: 100%;
   animation: fadeInUp 1s ease-out 0.6s backwards;
+  position: relative; /* Needed for camera container positioning */
 }
 
 #file-input {
   display: none;
 }
 
-.upload-label {
-  background: #4f46e5;
+.upload-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+}
+
+.upload-label,
+#predict-button,
+.camera-btn {
   border: none;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.2);
+  border-radius: 0.75rem;
   color: white;
   cursor: pointer;
-  display: inline-flex; /* Use flex for alignment */
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem; /* Match predict button */
+  font-size: 1.1rem;
   font-weight: 600;
-  padding: 14px 28px; /* Match predict button */
+  padding: 0.875rem 1.75rem;
   transition: all 0.3s ease;
   margin-bottom: 0;
 }
 
-.upload-label .fas {
-  margin-right: 8px;
+.upload-label {
+  background: #4f46e5;
+  box-shadow: 0 0.25rem 0.9375rem rgba(79, 70, 229, 0.2);
+}
+
+.upload-label .fas,
+#predict-button .fas,
+.camera-btn .fas {
+  margin-right: 0.5rem;
+}
+
+.upload-label:hover,
+#predict-button:hover,
+.camera-btn:hover {
+  transform: translateY(-0.1875rem);
 }
 
 .upload-label:hover {
   background: #4338ca;
-  box-shadow: 0 7px 20px rgba(79, 70, 229, 0.3);
-  transform: translateY(-3px);
+  box-shadow: 0 0.4375rem 1.25rem rgba(79, 70, 229, 0.3);
 }
 
 #image-preview-container {
   margin-bottom: 1.5rem;
-  min-height: 250px;
+  min-height: 15.625rem;
   border: 2px dashed #cbd5e1;
-  border-radius: 16px;
+  border-radius: 1rem;
   display: flex;
-  flex-direction: column; /* To stack icon and text */
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   background-color: #f1f5f9;
-  position: relative; /* For positioning the remove button */
+  position: relative;
   transition: border-color 0.3s;
+  overflow: hidden; /* Hide anything that spills out */
 }
 
 #image-preview-container.dragover {
@@ -117,16 +148,16 @@ h1 {
 
 #image-preview {
   max-width: 100%;
-  max-height: 250px;
+  max-height: 15.625rem;
   display: none;
-  border-radius: 8px;
+  border-radius: 0.5rem;
 }
 
 #image-placeholder-icon {
-  font-size: 64px;
+  font-size: 4rem;
   color: #cbd5e1;
   transition: color 0.3s;
-  margin-bottom: 1rem; /* Space below icon */
+  margin-bottom: 1rem;
 }
 
 .drag-text {
@@ -143,20 +174,21 @@ h1 {
 
 #remove-image-button {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 36px;
-  height: 36px;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 2.25rem;
+  height: 2.25rem;
   background-color: rgba(0, 0, 0, 0.5);
   color: white;
   border-radius: 50%;
-  display: none; /* Hidden by default */
+  display: none;
   justify-content: center;
   align-items: center;
-  font-size: 32px;
-  line-height: 36px;
+  font-size: 2rem;
+  line-height: 2.25rem;
   cursor: pointer;
   transition: background-color 0.3s;
+  z-index: 10;
 }
 
 #remove-image-button:hover {
@@ -165,30 +197,13 @@ h1 {
 
 #predict-button {
   background: #10b981;
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
-  color: white;
-  cursor: pointer;
-  display: inline-flex; /* Use flex for alignment */
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  font-weight: 600;
-  padding: 14px 28px;
-  transition: all 0.3s ease;
-  margin-bottom: 0;
-  display: none; /* Hide by default */
-}
-
-#predict-button .fas {
-  margin-right: 8px;
+  box-shadow: 0 0.25rem 0.9375rem rgba(16, 185, 129, 0.2);
+  display: none;
 }
 
 #predict-button:hover {
   background: #059669;
-  box-shadow: 0 7px 20px rgba(16, 185, 129, 0.3);
-  transform: translateY(-3px);
+  box-shadow: 0 0.4375rem 1.25rem rgba(16, 185, 129, 0.3);
 }
 
 #another-image-button {
@@ -203,11 +218,11 @@ h1 {
   display: none;
   text-align: left;
   padding: 1.5rem;
-  border-left: 4px solid #a855f7;
-  border-radius: 8px;
+  border-left: 0.25rem solid #a855f7;
+  border-radius: 0.5rem;
   background-color: #f8f9fa;
   animation: fadeInUp 1s ease-out;
-  margin-top: 1.5rem; /* Add space above */
+  margin-top: 1.5rem;
 }
 
 #result-container h2 {
@@ -228,11 +243,58 @@ h1 {
   color: #334155;
 }
 
-/* Keyframe Animations */
+/* Camera Styles */
+.camera-btn {
+  background-color: #f59e0b; /* A different color for camera */
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+}
+
+.camera-btn:hover {
+  background-color: #d97706;
+  box-shadow: 0 7px 20px rgba(245, 158, 11, 0.3);
+}
+
+#camera-container {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 100;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 1.5rem; /* Match container */
+}
+
+#camera-video {
+  width: 100%;
+  height: auto;
+  max-height: 80%;
+  border-radius: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.5); /* Add a visible border */
+}
+
+.camera-controls {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+
+footer {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  padding: 1.25rem;
+  text-align: center;
+  width: 100%;
+}
+
 @keyframes fadeInDown {
   from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-1.25rem);
   }
   to {
     opacity: 1;
@@ -243,7 +305,7 @@ h1 {
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(1.25rem);
   }
   to {
     opacity: 1;
@@ -251,26 +313,66 @@ h1 {
   }
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
-  header {
-    padding-top: 20px;
+  html {
+    font-size: 15px;
   }
+
+  h1 {
+    font-size: 2.5rem;
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+  }
+
   .container {
     padding: 1.5rem;
   }
-  h1 {
-    font-size: 2.2rem;
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 14px;
   }
+
+  body {
+    padding: 0.5rem;
+  }
+
+  header {
+    padding: 1.5rem 1rem 1rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
   .subtitle {
     font-size: 1rem;
   }
-}
 
-footer {
-  color: #94a3b8;
-  font-size: 0.9rem;
-  padding: 20px;
-  text-align: center;
-  width: 100%;
+  .container {
+    padding: 1.5rem 1rem;
+  }
+
+  .upload-container {
+    flex-direction: column;
+  }
+
+  .upload-label,
+  #predict-button,
+  .camera-btn {
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    width: 100%;
+  }
+
+  #result-container h2 {
+    font-size: 1.3rem;
+  }
+
+  #result-container p {
+    font-size: 1rem;
+  }
 }
