@@ -41,9 +41,18 @@
           </button>
         </div>
 
-        <button id="predict-button">
-          <i class="fas fa-search"></i> <span>Predict</span>
-        </button>
+        <div id="action-buttons-container" style="display: none">
+          <button id="predict-button">
+            <i class="fas fa-search"></i> <span>Predict Single</span>
+          </button>
+          <button id="create-grid-button">
+            <i class="fas fa-border-all"></i> <span>Create Grid</span>
+          </button>
+          <button id="predict-tray-button" style="display: none">
+            <i class="fas fa-th-large"></i> <span>Predict Tray</span>
+          </button>
+        </div>
+
         <label
           for="file-input"
           class="upload-label"
@@ -53,17 +62,14 @@
         >
 
         <div id="result-container">
-          <h2>Prediction Result</h2>
-          <p><strong>🍰 Item:</strong> <span id="item-name"></span></p>
-          <p><strong>💵 Price:</strong> <span id="item-price"></span> VND</p>
-          <p>
-            <strong>✅ Confidence:</strong> <span id="item-confidence"></span>%
-          </p>
+          <!-- Single result will be injected here -->
         </div>
 
         <!-- Camera View Container (Initially Hidden) -->
         <div id="camera-container">
-          <video id="camera-video" autoplay playsinline></video>
+          <div id="camera-view-wrapper">
+            <video id="camera-video" autoplay playsinline></video>
+          </div>
           <div class="camera-controls">
             <button id="take-picture-button" class="upload-label">
               <i class="fas fa-camera-retro"></i> Take Picture

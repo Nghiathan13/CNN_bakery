@@ -90,6 +90,8 @@ h1 {
 
 .upload-label,
 #predict-button,
+#predict-tray-button,
+#create-grid-button,
 .camera-btn {
   border: none;
   border-radius: 0.75rem;
@@ -112,12 +114,16 @@ h1 {
 
 .upload-label .fas,
 #predict-button .fas,
+#predict-tray-button .fas,
+#create-grid-button .fas,
 .camera-btn .fas {
   margin-right: 0.5rem;
 }
 
 .upload-label:hover,
 #predict-button:hover,
+#predict-tray-button:hover,
+#create-grid-button:hover,
 .camera-btn:hover {
   transform: translateY(-0.1875rem);
 }
@@ -195,10 +201,16 @@ h1 {
   background-color: rgba(0, 0, 0, 0.8);
 }
 
+#action-buttons-container {
+  display: none; /* Corrected from flex to none */
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
 #predict-button {
   background: #10b981;
   box-shadow: 0 0.25rem 0.9375rem rgba(16, 185, 129, 0.2);
-  display: none;
 }
 
 #predict-button:hover {
@@ -206,8 +218,29 @@ h1 {
   box-shadow: 0 0.4375rem 1.25rem rgba(16, 185, 129, 0.3);
 }
 
+#predict-tray-button {
+  background: #8b5cf6;
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+}
+
+#predict-tray-button:hover {
+  background: #7c3aed;
+  box-shadow: 0 7px 20px rgba(139, 92, 246, 0.3);
+}
+
+#create-grid-button {
+  background: #0891b2; /* Màu xanh mòng két (teal) */
+  box-shadow: 0 4px 15px rgba(8, 145, 178, 0.2);
+}
+
+#create-grid-button:hover {
+  background: #0e7490; /* Màu đậm hơn khi hover */
+  box-shadow: 0 7px 20px rgba(8, 145, 178, 0.3);
+}
+
 #another-image-button {
   background-color: #64748b;
+  margin-top: 1rem;
 }
 
 #another-image-button:hover {
@@ -218,34 +251,42 @@ h1 {
   display: none;
   text-align: left;
   padding: 1.5rem;
-  border-left: 0.25rem solid #a855f7;
+  border-left: 4px solid #a855f7;
   border-radius: 0.5rem;
   background-color: #f8f9fa;
   animation: fadeInUp 1s ease-out;
   margin-top: 1.5rem;
 }
 
-#result-container h2 {
-  color: #1e293b;
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  font-size: 1.5rem;
-  text-align: center;
+/* Result Table Styles */
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
 }
 
-#result-container p {
-  margin: 0.75rem 0 0;
-  font-size: 1.1rem;
+.result-table th,
+.result-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.result-table th {
+  font-weight: 600;
   color: #475569;
 }
 
-#result-container p strong {
-  color: #334155;
+.result-table .total-row td {
+  font-weight: 700;
+  font-size: 1.2rem;
+  border-top: 2px solid #334155;
+  color: #1e293b;
 }
 
 /* Camera Styles */
 .camera-btn {
-  background-color: #f59e0b; /* A different color for camera */
+  background-color: #f59e0b;
   box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
 }
 
@@ -266,15 +307,23 @@ h1 {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border-radius: 1.5rem; /* Match container */
+  border-radius: 1.5rem;
+  padding: 1rem;
+}
+
+#camera-view-wrapper {
+  position: relative;
+  width: 100%;
+  max-height: 80%;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 #camera-video {
+  display: block;
   width: 100%;
-  height: auto;
-  max-height: 80%;
-  border-radius: 1rem;
-  border: 2px solid rgba(255, 255, 255, 0.5); /* Add a visible border */
+  height: 100%;
 }
 
 .camera-controls {
@@ -356,12 +405,15 @@ footer {
     padding: 1.5rem 1rem;
   }
 
-  .upload-container {
+  .upload-container,
+  #action-buttons-container {
     flex-direction: column;
   }
 
   .upload-label,
   #predict-button,
+  #predict-tray-button,
+  #create-grid-button,
   .camera-btn {
     padding: 0.75rem 1.25rem;
     font-size: 1rem;
