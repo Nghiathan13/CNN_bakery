@@ -1,10 +1,12 @@
 {
   "banh_chuoi_nuong": 0,
   "banh_da_lon": 1,
-  "cha_bong_cay": 2,
-  "cookies_dua": 3,
-  "croissant": 4,
-  "egg_tart": 5,
-  "muffin_viet_quat": 6,
-  "patechaud": 7
+  "banh_mi_bo_(cua_lon)": 2,
+  "banh_mi_dua_luoi": 3,
+  "cha_bong_cay": 4,
+  "cookies_dua": 5,
+  "croissant": 6,
+  "egg_tart": 7,
+  "muffin_viet_quat": 8,
+  "patechaud": 9
 }

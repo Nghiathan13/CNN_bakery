@@ -66,10 +66,6 @@ h1 {
   animation: fadeInUp 1s ease-out 0.6s backwards;
 }
 
-.upload-container {
-  /* margin-bottom is now on .upload-label */
-}
-
 #file-input {
   display: none;
 }
