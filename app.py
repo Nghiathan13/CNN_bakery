@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 import numpy as np
 from keras.preprocessing.image import img_to_array
 from keras.models import load_model
-from PIL import Image # Import Pillow library
+from PIL import Image
 
 app = Flask(__name__)
 
@@ -34,22 +34,16 @@ print("✅ Bakery info loaded successfully")
 # --- HELPER FUNCTIONS ---
 def process_and_predict(pil_image):
     """Takes a PIL image object, processes it, and returns prediction."""
-    # Resize and convert to numpy array
     img = pil_image.resize(IMAGE_SIZE)
     x = img_to_array(img)
     x = np.expand_dims(x, axis=0) / 255.0
-
-    # Make prediction
     pred = model.predict(x)
     class_idx = np.argmax(pred, axis=-1)[0]
     label_key = labels[class_idx]
-
-    # Get info
     predicted_item = bakery_info.get(label_key, {})
     item_name = predicted_item.get("vietnamese_name", "Unknown")
     price = predicted_item.get("price", 0)
     confidence = np.max(pred) * 100
-
     return item_name, price, confidence
 
 # --- ROUTES ---
@@ -66,7 +60,6 @@ def predict():
     file = request.files['file']
     if file.filename == '':
         return jsonify({'error': 'No selected file'})
-
     if file:
         try:
             img = Image.open(file.stream).convert('RGB')
@@ -78,60 +71,51 @@ def predict():
             })
         except Exception as e:
             return jsonify({'error': str(e)})
-    
     return jsonify({'error': 'File processing error'})
+
+
+# --- THAY ĐỔI BẮT ĐẦU TỪ ĐÂY ---
 
 @app.route('/predict_tray', methods=['POST'])
 def predict_tray():
-    """Handles tray image upload, crops it into 6 parts, and predicts each."""
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'})
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'})
+    """
+    Handles multiple cropped image uploads and predicts each one.
+    The cropping logic is now done on the frontend.
+    """
+    # 1. Get the list of files sent from the frontend
+    files = request.files.getlist('files')
 
-    if file:
-        try:
+    if not files or files[0].filename == '':
+        return jsonify({'error': 'No selected files'})
+
+    try:
+        predictions = []
+        total_price = 0
+
+        # 2. Loop through each uploaded cropped file
+        for file in files:
             img = Image.open(file.stream).convert('RGB')
-            width, height = img.size
             
-            cell_width = width // 3
-            cell_height = height // 2
-
-            predictions = []
-            total_price = 0
-
-            # Loop through the 2x3 grid
-            for row in range(2):
-                for col in range(3):
-                    # Define the box for cropping
-                    left = col * cell_width
-                    top = row * cell_height
-                    right = (col + 1) * cell_width
-                    bottom = (row + 1) * cell_height
-                    
-                    cropped_img = img.crop((left, top, right, bottom))
-                    
-                    # Predict the cropped image
-                    item_name, price, confidence = process_and_predict(cropped_img)
-                    
-                    predictions.append({
-                        'position': len(predictions) + 1,
-                        'item_name': item_name,
-                        'price': int(price), # Cast to python int
-                        'confidence': float(round(confidence, 2)) # Cast to python float
-                    })
-                    total_price += price
-
-            return jsonify({
-                'predictions': predictions,
-                'total_price': int(total_price) # Cast to python int
+            # 3. Predict each small image using the existing helper function
+            item_name, price, confidence = process_and_predict(img)
+            
+            predictions.append({
+                'position': len(predictions) + 1,
+                'item_name': item_name,
+                'price': int(price),
+                'confidence': float(round(confidence, 2))
             })
+            total_price += price
 
-        except Exception as e:
-            return jsonify({'error': str(e)})
+        return jsonify({
+            'predictions': predictions,
+            'total_price': int(total_price)
+        })
 
-    return jsonify({'error': 'File processing error'})
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+# --- KẾT THÚC THAY ĐỔI ---
 
 
 if __name__ == '__main__':

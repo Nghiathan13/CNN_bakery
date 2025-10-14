@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bakery Classifier</title>
+    <!-- Link to the refactored stylesheet -->
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='style.css') }}"
@@ -24,45 +25,91 @@
     <main>
       <div class="container">
         <div id="image-preview-container">
-          <i id="image-placeholder-icon" class="fas fa-image"></i>
-          <p class="drag-text">Drag & drop your image here</p>
-          <p class="file-types">Supports: PNG, JPG, WEBP</p>
+          <div id="placeholder-content">
+            <i id="image-placeholder-icon" class="fas fa-image"></i>
+            <p class="drag-text">Drag & drop your image here</p>
+            <p class="file-types">Supports: PNG, JPG, WEBP</p>
+          </div>
           <img id="image-preview" src="#" alt="Image Preview" />
           <span id="remove-image-button" title="Remove image">&times;</span>
         </div>
 
+        <div id="grid-controls-container" style="display: none">
+          <div class="grid-controls-y">
+            <button
+              id="grid-minus-y"
+              class="grid-control-btn"
+              title="Decrease Height"
+            >
+              -
+            </button>
+            <button
+              id="grid-plus-y"
+              class="grid-control-btn"
+              title="Increase Height"
+            >
+              +
+            </button>
+          </div>
+          <div class="grid-controls-x">
+            <button
+              id="grid-minus-x"
+              class="grid-control-btn"
+              title="Decrease Width"
+            >
+              -
+            </button>
+            <button
+              id="grid-plus-x"
+              class="grid-control-btn"
+              title="Increase Width"
+            >
+              +
+            </button>
+          </div>
+        </div>
+
         <div class="upload-container">
           <input type="file" id="file-input" accept="image/*" />
-          <label for="file-input" class="upload-label"
-            ><i class="fas fa-folder-open"></i> Choose Image</label
-          >
-          <button id="camera-button" class="upload-label camera-btn">
+          <label for="file-input" class="btn btn-primary">
+            <i class="fas fa-folder-open"></i> Choose Image
+          </label>
+          <button id="camera-button" class="btn btn-warning">
             <i class="fas fa-camera"></i> Open Camera
           </button>
         </div>
 
         <div id="action-buttons-container" style="display: none">
-          <button id="predict-button">
+          <button id="predict-button" class="btn btn-success">
             <i class="fas fa-search"></i> <span>Predict Single</span>
           </button>
-          <button id="create-grid-button">
+          <button id="create-grid-button" class="btn btn-info">
             <i class="fas fa-border-all"></i> <span>Create Grid</span>
           </button>
-          <button id="predict-tray-button" style="display: none">
+          <button
+            id="predict-tray-button"
+            class="btn btn-purple"
+            style="display: none"
+          >
             <i class="fas fa-th-large"></i> <span>Predict Tray</span>
           </button>
         </div>
 
-        <label
-          for="file-input"
-          class="upload-label"
-          id="another-image-button"
-          style="display: none"
-          ><i class="fas fa-sync-alt"></i> Another Image</label
-        >
+        <div id="post-prediction-buttons" style="display: none">
+          <label
+            for="file-input"
+            class="btn btn-secondary"
+            id="another-image-button"
+          >
+            <i class="fas fa-sync-alt"></i> Another Image
+          </label>
+          <button id="preview-crops-button" class="btn btn-preview">
+            <i class="fas fa-images"></i> Preview Crops
+          </button>
+        </div>
 
         <div id="result-container">
-          <!-- Single result will be injected here -->
+          <!-- Result will be injected here -->
         </div>
 
         <!-- Camera View Container (Initially Hidden) -->
@@ -71,10 +118,10 @@
             <video id="camera-video" autoplay playsinline></video>
           </div>
           <div class="camera-controls">
-            <button id="take-picture-button" class="upload-label">
+            <button id="take-picture-button" class="btn btn-primary">
               <i class="fas fa-camera-retro"></i> Take Picture
             </button>
-            <button id="close-camera-button" class="upload-label camera-btn">
+            <button id="close-camera-button" class="btn btn-warning">
               <i class="fas fa-times"></i> Close
             </button>
           </div>
@@ -86,6 +133,17 @@
       <p>&copy; 2025 - UEH - NHL</p>
     </footer>
 
+    <div id="preview-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>Cropped Images for Prediction</h2>
+        <div id="modal-grid">
+          <!-- Cropped images will be injected here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- The original JavaScript file, unchanged -->
     <script src="{{ url_for('static', filename='script.js') }}"></script>
   </body>
 </html>
