@@ -1,18 +1,20 @@
 import json
-import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 from keras.models import Model
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization, Input
 from keras._tf_keras.keras.preprocessing.image import ImageDataGenerator
 
 
-INPUT_DIR = "assets/anh_gen" # Folder anh train
+# ======================================
+# CONFIGURATION
+# ======================================
+INPUT_DIR = "assets/anh_gen" # Folder train
+MODEL_PATH = "bakery_cnn.h5"
+CLASS_INDICES_PATH = "class_indices.json"
+
 IMAGE_SIZE = (128, 128)
 BATCH_SIZE = 64
 EPOCH = 15
 VALIDATION_SPLIT = 0.2
-MODEL_PATH = "bakery_cnn.h5"
-CLASS_INDICES_PATH = "class_indices.json"
 
 ROTATION_RANGE = 30
 SHIFT_RANGE = 0.2
@@ -20,8 +22,11 @@ SHEAR_RANGE = 0.2
 ZOOM_RANGE = 0.2
 
 
+# ======================================
+# FUNCTION
+# ======================================
 def create_data_generators():
-    """Tăng cường dữ liệu cho việc huấn luyện và đánh giá."""
+    """ Generate Data """
     train_datagen = ImageDataGenerator(
         rescale=1./255,
         validation_split=VALIDATION_SPLIT,
@@ -60,14 +65,14 @@ def create_data_generators():
 
 
 def save_class_indices(class_indices):
-    """Lưu data vào tệp JSON."""
+    """ Save Data to JSON """
     with open(CLASS_INDICES_PATH, 'w', encoding='utf-8') as f:
         json.dump(class_indices, f, ensure_ascii=False, indent=2)
     print(f"✅ Đã lưu class_indices vào file {CLASS_INDICES_PATH}")
 
 
 def build_cnn_model(num_classes):
-    """Build CNN model."""
+    """ Build CNN model """
     input_layer = Input(shape=(*IMAGE_SIZE, 3))
 
     x = Conv2D(32, (3, 3), activation='relu', padding='same')(input_layer)
@@ -109,7 +114,7 @@ def build_cnn_model(num_classes):
 
 
 def main():
-    """Hàm main"""
+    """ Main """
     train_generator, val_generator = create_data_generators()
 
     save_class_indices(train_generator.class_indices)
@@ -130,5 +135,8 @@ def main():
     return model, history
 
 
+# ======================================
+# MAIN
+# ======================================
 if __name__ == "__main__":
     model, history = main()
