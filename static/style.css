@@ -131,6 +131,19 @@ footer {
   width: 100%;
 }
 
+.github-link img {
+  height: 3rem;
+  padding: 0.25rem;
+  border-radius: 0.5rem;
+  background-color: rgb(255, 255, 255);
+  border: 0.0125px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+.github-link img:hover {
+  background-color: rgb(230, 230, 230);
+}
+
 /* --- General Button Styles --- */
 .btn {
   border: none;

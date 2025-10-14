@@ -3,8 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bakery Classifier</title>
-    <!-- Link to the refactored stylesheet -->
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='style.css') }}"
@@ -13,8 +11,15 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     />
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename='icons/cake.ico') }}"
+    />
+
+    <title>Bakery Classifier</title>
   </head>
   <body>
+    <!-- HEADER -->
     <header>
       <h1>Bakery Item Prediction</h1>
       <p class="subtitle">
@@ -22,8 +27,10 @@
       </p>
     </header>
 
+    <!-- MAIN -->
     <main>
       <div class="container">
+        <!-- Image Preview -->
         <div id="image-preview-container">
           <div id="placeholder-content">
             <i id="image-placeholder-icon" class="fas fa-image"></i>
@@ -32,6 +39,46 @@
           </div>
           <img id="image-preview" src="#" alt="Image Preview" />
           <span id="remove-image-button" title="Remove image">&times;</span>
+        </div>
+
+        <div class="upload-container">
+          <input type="file" id="file-input" accept="image/*" />
+          <label for="file-input" class="btn btn-primary">
+            <i class="fas fa-folder-open"></i> Choose Image
+          </label>
+          <button id="camera-button" class="btn btn-warning">
+            <i class="fas fa-camera"></i> Open Camera
+          </button>
+        </div>
+
+        <div id="camera-container">
+          <div id="camera-view-wrapper">
+            <video id="camera-video" autoplay playsinline></video>
+          </div>
+          <div class="camera-controls">
+            <button id="take-picture-button" class="btn btn-primary">
+              <i class="fas fa-camera-retro"></i> Take Picture
+            </button>
+            <button id="close-camera-button" class="btn btn-warning">
+              <i class="fas fa-times"></i> Close
+            </button>
+          </div>
+        </div>
+
+        <div id="action-buttons-container" style="display: none">
+          <button id="predict-button" class="btn btn-success">
+            <i class="fas fa-search"></i> <span>Predict Single</span>
+          </button>
+          <button id="create-grid-button" class="btn btn-info">
+            <i class="fas fa-border-all"></i> <span>Create Grid</span>
+          </button>
+          <button
+            id="predict-tray-button"
+            class="btn btn-purple"
+            style="display: none"
+          >
+            <i class="fas fa-th-large"></i> <span>Predict Tray</span>
+          </button>
         </div>
 
         <div id="grid-controls-container" style="display: none">
@@ -69,32 +116,6 @@
           </div>
         </div>
 
-        <div class="upload-container">
-          <input type="file" id="file-input" accept="image/*" />
-          <label for="file-input" class="btn btn-primary">
-            <i class="fas fa-folder-open"></i> Choose Image
-          </label>
-          <button id="camera-button" class="btn btn-warning">
-            <i class="fas fa-camera"></i> Open Camera
-          </button>
-        </div>
-
-        <div id="action-buttons-container" style="display: none">
-          <button id="predict-button" class="btn btn-success">
-            <i class="fas fa-search"></i> <span>Predict Single</span>
-          </button>
-          <button id="create-grid-button" class="btn btn-info">
-            <i class="fas fa-border-all"></i> <span>Create Grid</span>
-          </button>
-          <button
-            id="predict-tray-button"
-            class="btn btn-purple"
-            style="display: none"
-          >
-            <i class="fas fa-th-large"></i> <span>Predict Tray</span>
-          </button>
-        </div>
-
         <div id="post-prediction-buttons" style="display: none">
           <label
             for="file-input"
@@ -111,59 +132,59 @@
         <div id="result-container">
           <!-- Result will be injected here -->
         </div>
+      </div>
 
-        <!-- Camera View Container (Initially Hidden) -->
-        <div id="camera-container">
-          <div id="camera-view-wrapper">
-            <video id="camera-video" autoplay playsinline></video>
+      <div id="preview-modal" class="modal">
+        <div class="modal-content">
+          <span class="close-modal">&times;</span>
+          <h2>Cropped Images for Prediction</h2>
+          <div id="modal-grid">
+            <!-- Cropped images will be injected here -->
           </div>
-          <div class="camera-controls">
-            <button id="take-picture-button" class="btn btn-primary">
-              <i class="fas fa-camera-retro"></i> Take Picture
-            </button>
-            <button id="close-camera-button" class="btn btn-warning">
-              <i class="fas fa-times"></i> Close
-            </button>
-          </div>
+        </div>
+      </div>
+
+      <div id="payment-modal" class="modal">
+        <div class="modal-content" style="text-align: center">
+          <span id="close-payment-modal" class="close-modal">&times;</span>
+          <h2>Scan the QR code to pay</h2>
+          <p
+            id="payment-details"
+            style="margin-bottom: 1rem; color: #475569"
+          ></p>
+          <img
+            id="qr-code-image"
+            src=""
+            alt="VietQR Code"
+            style="max-width: 250px; height: auto; margin: auto; display: block"
+          />
+
+          <button
+            id="payment-success-button"
+            class="btn btn-primary"
+            style="margin: 1.5rem 0"
+          >
+            <i class="fas fa-check-circle"></i> Confirm Payment
+          </button>
         </div>
       </div>
     </main>
 
+    <!-- FOOTER -->
     <footer>
+      <a
+        href="https://github.com/Nghiathan13/CNN_bakery"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="github-link"
+      >
+        <img
+          src="{{ url_for('static', filename='icons/github_icon.svg') }}"
+          alt="GitHub Profile"
+        />
+      </a>
       <p>&copy; 2025 - UEH - NHL</p>
     </footer>
-
-    <div id="preview-modal" class="modal">
-      <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <h2>Cropped Images for Prediction</h2>
-        <div id="modal-grid">
-          <!-- Cropped images will be injected here -->
-        </div>
-      </div>
-    </div>
-
-    <div id="payment-modal" class="modal">
-      <div class="modal-content" style="text-align: center">
-        <span id="close-payment-modal" class="close-modal">&times;</span>
-        <h2>Scan the QR code to pay</h2>
-        <p id="payment-details" style="margin-bottom: 1rem; color: #475569"></p>
-        <img
-          id="qr-code-image"
-          src=""
-          alt="VietQR Code"
-          style="max-width: 250px; height: auto; margin: auto; display: block"
-        />
-
-        <button
-          id="payment-success-button"
-          class="btn btn-primary"
-          style="margin: 1.5rem 0"
-        >
-          <i class="fas fa-check-circle"></i> Confirm Payment
-        </button>
-      </div>
-    </div>
 
     <!-- The original JavaScript file, unchanged -->
     <script src="{{ url_for('static', filename='script.js') }}"></script>

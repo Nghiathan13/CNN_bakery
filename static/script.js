@@ -108,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
     paymentButton.id = "payment-button";
     paymentButton.className = "btn btn-success";
     paymentButton.style.marginTop = "1.5rem";
-    paymentButton.innerHTML = `<i class="fas fa-qrcode"></i> Thanh toán ngay`;
+    paymentButton.innerHTML = `<i class="fas fa-qrcode"></i> Pay Now`;
     paymentButton.dataset.amount = amount;
     return paymentButton;
   }
@@ -117,9 +117,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const priceFormatted = data.price.toLocaleString("vi-VN");
     resultContainer.innerHTML = `
         <h2>Prediction Result</h2>
-        <p><strong>🍰 Item:</strong> <span>${data.item_name}</span></p>
-        <p><strong>💵 Price:</strong> <span>${priceFormatted}</span> VND</p>
-        <p><strong>✅ Confidence:</strong> <span>${data.confidence}</span>%</p>
+        <p><strong>Item:</strong> <span>${data.item_name}</span></p>
+        <p><strong>Price:</strong> <span>${priceFormatted}</span> VND</p>
+        <p><strong>Confidence:</strong> <span>${data.confidence}</span>%</p>
         `;
 
     const paymentButton = createPaymentButton(data.price);
@@ -432,9 +432,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const amount = event.target.dataset.amount;
       if (!amount) return;
 
-      paymentDetails.textContent = `Số tiền: ${parseInt(amount).toLocaleString(
-        "vi-VN"
-      )} VND`;
+      paymentDetails.textContent = `Total Price: ${parseInt(
+        amount
+      ).toLocaleString("vi-VN")} VND`;
       qrCodeImage.src = "https://i.gifer.com/ZZ5H.gif"; // Loading spinner
       paymentModal.style.display = "block";
 
