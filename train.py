@@ -8,7 +8,7 @@ from keras._tf_keras.keras.preprocessing.image import ImageDataGenerator
 
 INPUT_DIR = "assets/anh_gen" # Folder anh train
 IMAGE_SIZE = (128, 128)
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 EPOCH = 15
 VALIDATION_SPLIT = 0.2
 MODEL_PATH = "bakery_cnn.h5"

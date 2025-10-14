@@ -143,6 +143,28 @@
       </div>
     </div>
 
+    <div id="payment-modal" class="modal">
+      <div class="modal-content" style="text-align: center">
+        <span id="close-payment-modal" class="close-modal">&times;</span>
+        <h2>Scan the QR code to pay</h2>
+        <p id="payment-details" style="margin-bottom: 1rem; color: #475569"></p>
+        <img
+          id="qr-code-image"
+          src=""
+          alt="VietQR Code"
+          style="max-width: 250px; height: auto; margin: auto; display: block"
+        />
+
+        <button
+          id="payment-success-button"
+          class="btn btn-primary"
+          style="margin: 1.5rem 0"
+        >
+          <i class="fas fa-check-circle"></i> Confirm Payment
+        </button>
+      </div>
+    </div>
+
     <!-- The original JavaScript file, unchanged -->
     <script src="{{ url_for('static', filename='script.js') }}"></script>
   </body>

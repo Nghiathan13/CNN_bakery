@@ -4,9 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const uploadLabel = document.querySelector('label[for="file-input"]');
   const dropContainer = document.getElementById("image-preview-container");
   const imagePreview = document.getElementById("image-preview");
-  const placeholderIcon = document.getElementById("image-placeholder-icon");
-  const dragText = document.querySelector(".drag-text");
-  const fileTypes = document.querySelector(".file-types");
+  const placeholderContent = document.getElementById("placeholder-content");
   const actionButtonsContainer = document.getElementById(
     "action-buttons-container"
   );
@@ -15,19 +13,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const predictTrayButton = document.getElementById("predict-tray-button");
   const resultContainer = document.getElementById("result-container");
   const removeImageButton = document.getElementById("remove-image-button");
-
-  // START: New elements for post-prediction and modal
   const postPredictionButtons = document.getElementById(
     "post-prediction-buttons"
   );
   const previewCropsButton = document.getElementById("preview-crops-button");
-  const previewModal = document.getElementById("preview-modal");
-  const closeModalButton = document.querySelector(".close-modal");
-  const modalGrid = document.getElementById("modal-grid");
-  let croppedImageDataURLs = []; // Array to store cropped images for preview
-  // END: New elements
 
-  // --- Grid Control Elements & State ---
+  // Preview Modal Elements
+  const previewModal = document.getElementById("preview-modal");
+  const closeModalButton = previewModal.querySelector(".close-modal");
+  const modalGrid = document.getElementById("modal-grid");
+
+  // Payment Modal Elements
+  const paymentModal = document.getElementById("payment-modal");
+  const closePaymentModalBtn = document.getElementById("close-payment-modal");
+  const qrCodeImage = document.getElementById("qr-code-image");
+  const paymentDetails = document.getElementById("payment-details");
+  const paymentSuccessButton = document.getElementById(
+    "payment-success-button"
+  );
+
+  // Grid Control Elements
   const gridControlsContainer = document.getElementById(
     "grid-controls-container"
   );
@@ -36,35 +41,31 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnPlusY = document.getElementById("grid-plus-y");
   const btnMinusY = document.getElementById("grid-minus-y");
 
-  let loadedImage = new Image();
-  let gridParams = {
-    rows: 2,
-    cols: 3,
-    marginX: 0.1,
-    marginY: 0.1,
-  };
-
-  // --- Camera Elements ---
+  // Camera Elements
   const openCameraButton = document.getElementById("camera-button");
   const cameraContainer = document.getElementById("camera-container");
   const takePictureButton = document.getElementById("take-picture-button");
   const closeCameraButton = document.getElementById("close-camera-button");
+
+  // --- State Variables ---
+  let croppedImageDataURLs = [];
+  let loadedImage = new Image();
+  let gridParams = { rows: 2, cols: 3, marginX: 0.1, marginY: 0.1 };
   let stream = null;
 
-  // --- UI Functions ---
+  // --- UI & Display Functions ---
+
   function resetUI() {
     const canvas = document.getElementById("image-canvas-overlay");
     if (canvas) canvas.remove();
 
-    placeholderIcon.style.display = "block";
-    dragText.style.display = "block";
-    fileTypes.style.display = "block";
+    placeholderContent.style.display = "flex";
     uploadLabel.parentElement.style.display = "flex";
     imagePreview.style.display = "none";
 
     removeImageButton.style.display = "none";
     actionButtonsContainer.style.display = "none";
-    postPredictionButtons.style.display = "none"; // Hide the new container
+    postPredictionButtons.style.display = "none";
     resultContainer.style.display = "none";
     resultContainer.innerHTML = "";
     fileInput.value = "";
@@ -73,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
     gridControlsContainer.style.display = "none";
     gridControlsContainer.classList.remove("visible");
     gridParams = { rows: 2, cols: 3, marginX: 0.1, marginY: 0.1 };
-    croppedImageDataURLs = []; // Clear stored images
+    croppedImageDataURLs = [];
 
     predictTrayButton.style.display = "none";
     createGridButton.style.display = "inline-flex";
@@ -81,13 +82,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function handleFiles(files) {
-    const canvas = document.getElementById("image-canvas-overlay");
-    if (canvas) canvas.remove();
-    gridControlsContainer.style.display = "none";
-    gridControlsContainer.classList.remove("visible");
-    gridParams = { rows: 2, cols: 3, marginX: 0.1, marginY: 0.1 };
-    croppedImageDataURLs = [];
-
     const file = files[0];
     if (file) {
       const reader = new FileReader();
@@ -97,72 +91,39 @@ document.addEventListener("DOMContentLoaded", () => {
           imagePreview.src = loadedImage.src;
           imagePreview.style.display = "block";
           removeImageButton.style.display = "flex";
-          placeholderIcon.style.display = "none";
-          dragText.style.display = "none";
-          fileTypes.style.display = "none";
+          placeholderContent.style.display = "none";
           uploadLabel.parentElement.style.display = "none";
           actionButtonsContainer.style.display = "flex";
-          postPredictionButtons.style.display = "none";
           resultContainer.style.display = "none";
           resultContainer.innerHTML = "";
-          predictButton.style.display = "inline-flex";
-          createGridButton.style.display = "inline-flex";
-          predictTrayButton.style.display = "none";
+          postPredictionButtons.style.display = "none";
         };
       };
       reader.readAsDataURL(file);
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(file);
-      fileInput.files = dataTransfer.files;
     }
   }
 
-  function redrawGrid() {
-    let canvas = document.getElementById("image-canvas-overlay");
-    if (!canvas) {
-      canvas = document.createElement("canvas");
-      canvas.id = "image-canvas-overlay";
-      dropContainer.appendChild(canvas);
-    }
-    const ctx = canvas.getContext("2d");
-    const displayWidth = imagePreview.clientWidth;
-    const displayHeight = imagePreview.clientHeight;
-    canvas.width = displayWidth;
-    canvas.height = displayHeight;
-    ctx.clearRect(0, 0, displayWidth, displayHeight);
-    const startX = displayWidth * gridParams.marginX;
-    const startY = displayHeight * gridParams.marginY;
-    const gridWidth = displayWidth * (1 - 2 * gridParams.marginX);
-    const gridHeight = displayHeight * (1 - 2 * gridParams.marginY);
-    const cellWidth = gridWidth / gridParams.cols;
-    const cellHeight = gridHeight / gridParams.rows;
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
-    ctx.lineWidth = 2;
-    ctx.fillStyle = "rgba(255, 255, 255, 1)";
-    ctx.font = `bold ${Math.min(cellWidth, cellHeight) / 4}px Montserrat`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
-    ctx.shadowBlur = 5;
-    for (let i = 0; i < gridParams.rows; i++) {
-      for (let j = 0; j < gridParams.cols; j++) {
-        const x = startX + j * cellWidth;
-        const y = startY + i * cellHeight;
-        const number = i * gridParams.cols + j + 1;
-        ctx.strokeRect(x, y, cellWidth, cellHeight);
-        ctx.fillText(number.toString(), x + cellWidth / 2, y + cellHeight / 2);
-      }
-    }
+  function createPaymentButton(amount) {
+    const paymentButton = document.createElement("button");
+    paymentButton.id = "payment-button";
+    paymentButton.className = "btn btn-success";
+    paymentButton.style.marginTop = "1.5rem";
+    paymentButton.innerHTML = `<i class="fas fa-qrcode"></i> Thanh toán ngay`;
+    paymentButton.dataset.amount = amount;
+    return paymentButton;
   }
 
-  // ... (display functions, camera functions remain unchanged)
   function displaySingleResult(data) {
+    const priceFormatted = data.price.toLocaleString("vi-VN");
     resultContainer.innerHTML = `
         <h2>Prediction Result</h2>
         <p><strong>🍰 Item:</strong> <span>${data.item_name}</span></p>
-        <p><strong>💵 Price:</strong> <span>${data.price}</span> VND</p>
+        <p><strong>💵 Price:</strong> <span>${priceFormatted}</span> VND</p>
         <p><strong>✅ Confidence:</strong> <span>${data.confidence}</span>%</p>
         `;
+
+    const paymentButton = createPaymentButton(data.price);
+    resultContainer.appendChild(paymentButton);
     resultContainer.style.display = "block";
   }
 
@@ -176,8 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <td>${p.item_name}</td>
             <td>${p.price.toLocaleString("vi-VN")}</td>
             <td>${Math.round(p.confidence)}%</td>
-        </tr>
-        `
+        </tr>`
       )
       .join("");
 
@@ -185,46 +145,76 @@ document.addEventListener("DOMContentLoaded", () => {
         <h2>Tray Prediction Result</h2>
         <table class="result-table">
             <thead>
-            <tr>
-                <th>Position</th>
-                <th>Item</th>
-                <th>Price</th>
-                <th>Confidence</th>
-            </tr>
+                <tr><th>Position</th><th>Item</th><th>Price</th><th>Confidence</th></tr>
             </thead>
-            <tbody>
-            ${tableRows}
-            </tbody>
+            <tbody>${tableRows}</tbody>
             <tfoot>
-            <tr class="total-row">
-                <td colspan="2">Total Price</td>
-                <td colspan="2">${total_price.toLocaleString("vi-VN")} VND</td>
-            </tr>
+                <tr class="total-row">
+                    <td colspan="2">Total Price</td>
+                    <td colspan="2">${total_price.toLocaleString(
+                      "vi-VN"
+                    )} VND</td>
+                </tr>
             </tfoot>
-        </table>
-        `;
+        </table>`;
+
+    const paymentButton = createPaymentButton(total_price);
+    resultContainer.appendChild(paymentButton);
     resultContainer.style.display = "block";
+  }
+
+  // --- Core Logic Functions ---
+
+  function redrawGrid() {
+    let canvas = document.getElementById("image-canvas-overlay");
+    if (!canvas) {
+      canvas = document.createElement("canvas");
+      canvas.id = "image-canvas-overlay";
+      dropContainer.appendChild(canvas);
+    }
+    const ctx = canvas.getContext("2d");
+    const { clientWidth: displayWidth, clientHeight: displayHeight } =
+      imagePreview;
+    canvas.width = displayWidth;
+    canvas.height = displayHeight;
+    ctx.clearRect(0, 0, displayWidth, displayHeight);
+
+    const startX = displayWidth * gridParams.marginX;
+    const startY = displayHeight * gridParams.marginY;
+    const gridWidth = displayWidth * (1 - 2 * gridParams.marginX);
+    const gridHeight = displayHeight * (1 - 2 * gridParams.marginY);
+    const cellWidth = gridWidth / gridParams.cols;
+    const cellHeight = gridHeight / gridParams.rows;
+
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+    ctx.lineWidth = 2;
+    ctx.fillStyle = "rgba(255, 255, 255, 1)";
+    ctx.font = `bold ${Math.min(cellWidth, cellHeight) / 4}px Montserrat`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
+    ctx.shadowBlur = 5;
+
+    for (let i = 0; i < gridParams.rows; i++) {
+      for (let j = 0; j < gridParams.cols; j++) {
+        const x = startX + j * cellWidth;
+        const y = startY + i * cellHeight;
+        const number = i * gridParams.cols + j + 1;
+        ctx.strokeRect(x, y, cellWidth, cellHeight);
+        ctx.fillText(number.toString(), x + cellWidth / 2, y + cellHeight / 2);
+      }
+    }
   }
 
   async function startCamera() {
     try {
-      if (
-        "mediaDevices" in navigator &&
-        "getUserMedia" in navigator.mediaDevices
-      ) {
-        const constraints = { video: { facingMode: "environment" } };
-        stream = await navigator.mediaDevices.getUserMedia(constraints);
-        const cameraVideo = document.getElementById("camera-video");
-        cameraVideo.srcObject = stream;
-        cameraContainer.style.display = "flex";
-      } else {
-        alert("Your browser does not support camera access.");
-      }
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+      });
+      document.getElementById("camera-video").srcObject = stream;
+      cameraContainer.style.display = "flex";
     } catch (err) {
-      console.error("Error accessing camera: ", err);
-      alert(
-        "Could not access the camera. Please ensure you have a camera and have granted permission."
-      );
+      alert("Could not access camera. Please grant permission.");
     }
   }
 
@@ -237,90 +227,82 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function takePicture() {
-    const cameraVideo = document.getElementById("camera-video");
+    const video = document.getElementById("camera-video");
     const canvas = document.createElement("canvas");
-    canvas.width = cameraVideo.videoWidth;
-    canvas.height = cameraVideo.videoHeight;
-    const context = canvas.getContext("2d");
-    context.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
     canvas.toBlob((blob) => {
-      const file = new File([blob], "camera-capture.jpg", {
-        type: "image/jpeg",
-      });
+      const file = new File([blob], "camera.jpg", { type: "image/jpeg" });
       handleFiles([file]);
       stopCamera();
     }, "image/jpeg");
   }
 
-  // START: Updated predictTrayWithCroppedImages function
   async function predictTrayWithCroppedImages(button) {
-    gridControlsContainer.classList.remove("visible");
     const buttonSpan = button.querySelector("span");
     buttonSpan.textContent = "Cropping...";
 
     const scaleX = loadedImage.naturalWidth / imagePreview.clientWidth;
     const scaleY = loadedImage.naturalHeight / imagePreview.clientHeight;
-    const originalStartX =
-      imagePreview.clientWidth * gridParams.marginX * scaleX;
-    const originalStartY =
-      imagePreview.clientHeight * gridParams.marginY * scaleY;
-    const originalGridWidth =
-      imagePreview.clientWidth * (1 - 2 * gridParams.marginX) * scaleX;
-    const originalGridHeight =
-      imagePreview.clientHeight * (1 - 2 * gridParams.marginY) * scaleY;
-    const originalCellWidth = originalGridWidth / gridParams.cols;
-    const originalCellHeight = originalGridHeight / gridParams.rows;
 
     const cropPromises = [];
-    croppedImageDataURLs = []; // Clear previous previews
+    croppedImageDataURLs = [];
 
     for (let i = 0; i < gridParams.rows; i++) {
       for (let j = 0; j < gridParams.cols; j++) {
-        const sx = originalStartX + j * originalCellWidth;
-        const sy = originalStartY + i * originalCellHeight;
+        const sx =
+          (imagePreview.clientWidth * gridParams.marginX +
+            j *
+              ((imagePreview.clientWidth * (1 - 2 * gridParams.marginX)) /
+                gridParams.cols)) *
+          scaleX;
+        const sy =
+          (imagePreview.clientHeight * gridParams.marginY +
+            i *
+              ((imagePreview.clientHeight * (1 - 2 * gridParams.marginY)) /
+                gridParams.rows)) *
+          scaleY;
+        const sWidth =
+          ((imagePreview.clientWidth * (1 - 2 * gridParams.marginX)) /
+            gridParams.cols) *
+          scaleX;
+        const sHeight =
+          ((imagePreview.clientHeight * (1 - 2 * gridParams.marginY)) /
+            gridParams.rows) *
+          scaleY;
 
         const promise = new Promise((resolve) => {
-          const tempCanvas = document.createElement("canvas");
-          tempCanvas.width = originalCellWidth;
-          tempCanvas.height = originalCellHeight;
-          const tempCtx = tempCanvas.getContext("2d");
-          tempCtx.drawImage(
+          const canvas = document.createElement("canvas");
+          canvas.width = sWidth;
+          canvas.height = sHeight;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(
             loadedImage,
             sx,
             sy,
-            originalCellWidth,
-            originalCellHeight,
+            sWidth,
+            sHeight,
             0,
             0,
-            originalCellWidth,
-            originalCellHeight
+            sWidth,
+            sHeight
           );
-
-          // Store Data URL for preview
-          croppedImageDataURLs.push(tempCanvas.toDataURL("image/jpeg"));
-
-          tempCanvas.toBlob((blob) => {
-            const position = i * gridParams.cols + j + 1;
-            resolve(
-              new File([blob], `crop_${position}.jpg`, { type: "image/jpeg" })
-            );
-          }, "image/jpeg");
+          croppedImageDataURLs.push(canvas.toDataURL("image/jpeg"));
+          canvas.toBlob(
+            (blob) => resolve(new File([blob], `crop_${i}_${j}.jpg`)),
+            "image/jpeg"
+          );
         });
         cropPromises.push(promise);
       }
     }
 
     const croppedFiles = await Promise.all(cropPromises);
-
     buttonSpan.textContent = "Predicting...";
-    predictButton.disabled = true;
-    createGridButton.disabled = true;
-    predictTrayButton.disabled = true;
 
     const formData = new FormData();
-    croppedFiles.forEach((file) => {
-      formData.append("files", file);
-    });
+    croppedFiles.forEach((file) => formData.append("files", file));
 
     try {
       const response = await fetch("/predict_tray", {
@@ -328,79 +310,73 @@ document.addEventListener("DOMContentLoaded", () => {
         body: formData,
       });
       const data = await response.json();
-      if (data.error) {
-        alert(`Error: ${data.error}`);
-      } else {
-        displayTrayResult(data);
-      }
+      displayTrayResult(data);
     } catch (error) {
-      console.error("Error:", error);
       alert("An error occurred during prediction.");
     } finally {
+      // Ẩn các nút điều khiển lưới sau khi dự đoán xong
+      gridControlsContainer.style.display = "none";
+      gridControlsContainer.classList.remove("visible");
+
       buttonSpan.textContent = "Predict Tray";
-      predictButton.disabled = false;
-      createGridButton.disabled = false;
-      predictTrayButton.disabled = false;
       actionButtonsContainer.style.display = "none";
-      postPredictionButtons.style.display = "flex"; // Show the container with both buttons
+      postPredictionButtons.style.display = "flex";
+      previewCropsButton.style.display = "inline-flex";
     }
   }
-  // END: Updated function
 
   // --- Event Listeners ---
+
+  // File handling
   fileInput.addEventListener("change", () => handleFiles(fileInput.files));
   removeImageButton.addEventListener("click", resetUI);
   document
     .getElementById("another-image-button")
-    .addEventListener("click", resetUI); // Attach to the new button
-
+    .addEventListener("click", resetUI);
   dropContainer.addEventListener("dragover", (e) => {
     e.preventDefault();
     dropContainer.classList.add("dragover");
   });
-  dropContainer.addEventListener("dragleave", () => {
-    dropContainer.classList.remove("dragover");
-  });
+  dropContainer.addEventListener("dragleave", () =>
+    dropContainer.classList.remove("dragover")
+  );
   dropContainer.addEventListener("drop", (e) => {
     e.preventDefault();
     dropContainer.classList.remove("dragover");
     handleFiles(e.dataTransfer.files);
   });
 
+  // Camera
   openCameraButton.addEventListener("click", startCamera);
   closeCameraButton.addEventListener("click", stopCamera);
   takePictureButton.addEventListener("click", takePicture);
 
-  predictButton.addEventListener("click", async (e) => {
+  // Predictions
+  predictButton.addEventListener("click", async () => {
     const file = fileInput.files[0];
     if (!file) {
       alert("Please select an image first.");
       return;
     }
+
     const formData = new FormData();
     formData.append("file", file);
-    const button = e.currentTarget;
-    const buttonSpan = button.querySelector("span");
-    buttonSpan.textContent = "Predicting...";
+    predictButton.querySelector("span").textContent = "Predicting...";
+
     try {
       const response = await fetch("/predict", {
         method: "POST",
         body: formData,
       });
       const data = await response.json();
-      if (data.error) {
-        alert(`Error: ${data.error}`);
-      } else {
-        displaySingleResult(data);
-      }
+      displaySingleResult(data);
     } catch (error) {
-      console.error("Error:", error);
       alert("An error occurred.");
     } finally {
-      buttonSpan.textContent = "Predict Single";
+      predictButton.querySelector("span").textContent = "Predict Single";
       actionButtonsContainer.style.display = "none";
       postPredictionButtons.style.display = "flex";
-      previewCropsButton.style.display = "none"; // Hide preview for single predict
+      previewCropsButton.style.display = "none";
     }
   });
 
@@ -417,6 +393,7 @@ document.addEventListener("DOMContentLoaded", () => {
     predictTrayWithCroppedImages(e.currentTarget)
   );
 
+  // Grid controls
   btnPlusX.addEventListener("click", () => {
     gridParams.marginX = Math.max(0, gridParams.marginX - 0.02);
     redrawGrid();
@@ -434,9 +411,9 @@ document.addEventListener("DOMContentLoaded", () => {
     redrawGrid();
   });
 
-  // START: Modal event listeners
+  // Preview Modal
   previewCropsButton.addEventListener("click", () => {
-    modalGrid.innerHTML = ""; // Clear previous images
+    modalGrid.innerHTML = "";
     croppedImageDataURLs.forEach((url) => {
       const img = document.createElement("img");
       img.src = url;
@@ -447,12 +424,54 @@ document.addEventListener("DOMContentLoaded", () => {
   closeModalButton.addEventListener("click", () => {
     previewModal.style.display = "none";
   });
+
+  // --- Payment Modal Event Listeners ---
+  document.addEventListener("click", async (event) => {
+    // Listener cho nút "Thanh toán ngay"
+    if (event.target && event.target.id === "payment-button") {
+      const amount = event.target.dataset.amount;
+      if (!amount) return;
+
+      paymentDetails.textContent = `Số tiền: ${parseInt(amount).toLocaleString(
+        "vi-VN"
+      )} VND`;
+      qrCodeImage.src = "https://i.gifer.com/ZZ5H.gif"; // Loading spinner
+      paymentModal.style.display = "block";
+
+      try {
+        const response = await fetch("/generate_qr", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount: amount }),
+        });
+        if (!response.ok) throw new Error("Failed to generate QR");
+
+        const imageBlob = await response.blob();
+        qrCodeImage.src = URL.createObjectURL(imageBlob);
+      } catch (error) {
+        paymentDetails.textContent = "Lỗi khi tạo mã QR. Vui lòng thử lại.";
+        qrCodeImage.src = "";
+      }
+    }
+  });
+
+  // Listener cho nút X để đóng modal (hành động hủy)
+  closePaymentModalBtn.addEventListener("click", () => {
+    paymentModal.style.display = "none";
+  });
+
+  // Listener cho nút "Thanh toán thành công" (hành động hoàn tất)
+  paymentSuccessButton.addEventListener("click", () => {
+    paymentModal.style.display = "none"; // Đóng modal
+    resetUI(); // Quay về màn hình ban đầu
+  });
+
+  // Đóng modal preview crops khi click ra ngoài
   window.addEventListener("click", (event) => {
     if (event.target == previewModal) {
       previewModal.style.display = "none";
     }
   });
-  // END: Modal event listeners
 
   // --- Initial Setup ---
   resetUI();
