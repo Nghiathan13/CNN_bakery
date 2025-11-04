@@ -99,7 +99,6 @@ def build_cnn_model(num_classes):
     x = Dropout(0.5)(x)
     x = Dense(128, activation='relu')(x)
     x = BatchNormalization()(x)
-    x = Dropout(0.5)(x)
     outputs = Dense(num_classes, activation='softmax')(x)
 
     model = Model(inputs=input_layer, outputs=outputs)
@@ -140,3 +139,4 @@ def main():
 # ======================================
 if __name__ == "__main__":
     model, history = main()
+
