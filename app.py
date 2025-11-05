@@ -64,7 +64,7 @@ def process_and_predict(pil_image):
     predicted_item = bakery_info.get(label_key, {})
     item_name = predicted_item.get("vietnamese_name", "Unknown")
     price = predicted_item.get("price", 0)
-    
+
     return item_name, price, confidence
 
 def crc16(data: str) -> str:
@@ -91,7 +91,7 @@ def generate_qr_payload(bank_bin: str, account_no: str, amount: str,
         f"00{len(bank_bin):02d}{bank_bin}01{len(account_no):02d}{account_no}"
     ]
     merchant_info = "".join(merchant_info_parts)
-    
+
     payload_parts = [
         "000201", "010212",
         f"38{len(merchant_info):02d}{merchant_info}",
@@ -99,12 +99,12 @@ def generate_qr_payload(bank_bin: str, account_no: str, amount: str,
         f"54{len(amount):02d}{amount}",
         "5802VN",
     ]
-    
+
     additional_info_parts = [f"01{len(description):02d}{description}"]
     additional_info = "".join(additional_info_parts)
     payload_parts.append(f"62{len(additional_info):02d}{additional_info}")
     payload_parts.append("6304")
-    
+
     pre_crc_payload = "".join(payload_parts)
     return f"{pre_crc_payload}{crc16(pre_crc_payload)}"
 
@@ -118,13 +118,13 @@ def generate_qr_image(payload: str):
     )
     qr.add_data(payload)
     qr.make(fit=True)
-    
+
     img = qr.make_image(fill_color="black", back_color="white")
-    
+
     buf = io.BytesIO()
     img.save(buf, 'PNG')
     buf.seek(0)
-    
+
     return buf
 
 
@@ -145,7 +145,7 @@ def predict():
     file = request.files['file']
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
-    
+
     try:
         img = Image.open(file.stream).convert('RGB')
         item_name, price, confidence = process_and_predict(img)
@@ -208,10 +208,9 @@ def generate_qr():
             description=description,
             account_name=ACCOUNT_NAME
         )
-        
+
         qr_buffer = generate_qr_image(qr_payload)
-        
-        # Return image to browser
+
         return send_file(qr_buffer, mimetype='image/png')
 
     except Exception as e:

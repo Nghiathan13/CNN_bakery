@@ -1,6 +1,7 @@
 import json
+import matplotlib.pyplot as plt
 from keras.models import Model
-from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization, Input
+from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, BatchNormalization, Input
 from keras._tf_keras.keras.preprocessing.image import ImageDataGenerator
 
 
@@ -96,7 +97,6 @@ def build_cnn_model(num_classes):
     x = Flatten()(x)
     x = Dense(256, activation='relu')(x)
     x = BatchNormalization()(x)
-    x = Dropout(0.5)(x)
     x = Dense(128, activation='relu')(x)
     x = BatchNormalization()(x)
     outputs = Dense(num_classes, activation='softmax')(x)
@@ -110,6 +110,30 @@ def build_cnn_model(num_classes):
     )
 
     return model
+
+
+def plot_history(history):
+    """ Plot training history """
+    plt.figure(figsize=(12, 4))
+
+    plt.subplot(1, 2, 1)
+    plt.plot(history.history['accuracy'])
+    plt.plot(history.history['val_accuracy'])
+    plt.title('Model accuracy')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epoch')
+    plt.legend(['Train', 'Validation'], loc='upper left')
+
+    plt.subplot(1, 2, 2)
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('Model loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(['Train', 'Validation'], loc='upper left')
+
+    plt.savefig('training_history.png')
+    plt.show()
 
 
 def main():
@@ -139,4 +163,4 @@ def main():
 # ======================================
 if __name__ == "__main__":
     model, history = main()
-
+    plot_history(history)
