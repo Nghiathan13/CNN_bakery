@@ -52,6 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let loadedImage = new Image();
   let gridParams = { rows: 2, cols: 3, marginX: 0.1, marginY: 0.1 };
   let stream = null;
+  let currentImageFile = null;
 
   // --- UI & Display Functions ---
 
@@ -70,6 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
     resultContainer.innerHTML = "";
     fileInput.value = "";
     stopCamera();
+    currentImageFile = null;
 
     gridControlsContainer.style.display = "none";
     gridControlsContainer.classList.remove("visible");
@@ -84,6 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function handleFiles(files) {
     const file = files[0];
     if (file) {
+      currentImageFile = file;
       const reader = new FileReader();
       reader.onload = (e) => {
         loadedImage.src = e.target.result;
@@ -353,14 +356,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Predictions
   predictButton.addEventListener("click", async () => {
-    const file = fileInput.files[0];
-    if (!file) {
+    if (!currentImageFile) {
+      // Sử dụng biến trạng thái
       alert("Please select an image first.");
       return;
     }
 
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", currentImageFile); // Sử dụng biến trạng thái
     predictButton.querySelector("span").textContent = "Predicting...";
 
     try {
