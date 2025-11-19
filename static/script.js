@@ -9,8 +9,6 @@ document.addEventListener("DOMContentLoaded", () => {
     "action-buttons-container"
   );
   const predictButton = document.getElementById("predict-button");
-  const createGridButton = document.getElementById("create-grid-button");
-  const predictTrayButton = document.getElementById("predict-tray-button");
   const resultContainer = document.getElementById("result-container");
   const removeImageButton = document.getElementById("remove-image-button");
   const postPredictionButtons = document.getElementById(
@@ -32,15 +30,6 @@ document.addEventListener("DOMContentLoaded", () => {
     "payment-success-button"
   );
 
-  // Grid Control Elements
-  const gridControlsContainer = document.getElementById(
-    "grid-controls-container"
-  );
-  const btnPlusX = document.getElementById("grid-plus-x");
-  const btnMinusX = document.getElementById("grid-minus-x");
-  const btnPlusY = document.getElementById("grid-plus-y");
-  const btnMinusY = document.getElementById("grid-minus-y");
-
   // Camera Elements
   const openCameraButton = document.getElementById("camera-button");
   const cameraContainer = document.getElementById("camera-container");
@@ -49,17 +38,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- State Variables ---
   let croppedImageDataURLs = [];
-  let loadedImage = new Image();
-  let gridParams = { rows: 2, cols: 3, marginX: 0.1, marginY: 0.1 };
+  let allPredictions = [];
   let stream = null;
   let currentImageFile = null;
 
   // --- UI & Display Functions ---
 
   function resetUI() {
-    const canvas = document.getElementById("image-canvas-overlay");
-    if (canvas) canvas.remove();
-
     placeholderContent.style.display = "flex";
     uploadLabel.parentElement.style.display = "flex";
     imagePreview.style.display = "none";
@@ -72,15 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fileInput.value = "";
     stopCamera();
     currentImageFile = null;
-
-    gridControlsContainer.style.display = "none";
-    gridControlsContainer.classList.remove("visible");
-    gridParams = { rows: 2, cols: 3, marginX: 0.1, marginY: 0.1 };
     croppedImageDataURLs = [];
-
-    predictTrayButton.style.display = "none";
-    createGridButton.style.display = "inline-flex";
-    predictButton.style.display = "inline-flex";
   }
 
   function handleFiles(files) {
@@ -89,18 +66,15 @@ document.addEventListener("DOMContentLoaded", () => {
       currentImageFile = file;
       const reader = new FileReader();
       reader.onload = (e) => {
-        loadedImage.src = e.target.result;
-        loadedImage.onload = () => {
-          imagePreview.src = loadedImage.src;
-          imagePreview.style.display = "block";
-          removeImageButton.style.display = "flex";
-          placeholderContent.style.display = "none";
-          uploadLabel.parentElement.style.display = "none";
-          actionButtonsContainer.style.display = "flex";
-          resultContainer.style.display = "none";
-          resultContainer.innerHTML = "";
-          postPredictionButtons.style.display = "none";
-        };
+        imagePreview.src = e.target.result;
+        imagePreview.style.display = "block";
+        removeImageButton.style.display = "flex";
+        placeholderContent.style.display = "none";
+        uploadLabel.parentElement.style.display = "none";
+        actionButtonsContainer.style.display = "flex";
+        resultContainer.style.display = "none";
+        resultContainer.innerHTML = "";
+        postPredictionButtons.style.display = "none";
       };
       reader.readAsDataURL(file);
     }
@@ -111,50 +85,48 @@ document.addEventListener("DOMContentLoaded", () => {
     paymentButton.id = "payment-button";
     paymentButton.className = "btn btn-success";
     paymentButton.style.marginTop = "1.5rem";
-    paymentButton.innerHTML = `<i class="fas fa-qrcode"></i> Pay Now`;
+    paymentButton.innerHTML = '<i class="fas fa-qrcode"></i> Pay Now';
     paymentButton.dataset.amount = amount;
     return paymentButton;
   }
 
-  function displaySingleResult(data) {
-    const priceFormatted = data.price.toLocaleString("vi-VN");
-    resultContainer.innerHTML = `
-        <h2>Prediction Result</h2>
-        <p><strong>Item:</strong> <span>${data.item_name}</span></p>
-        <p><strong>Price:</strong> <span>${priceFormatted}</span> VND</p>
-        <p><strong>Confidence:</strong> <span>${data.confidence}</span>%</p>
-        `;
-
-    const paymentButton = createPaymentButton(data.price);
-    resultContainer.appendChild(paymentButton);
-    resultContainer.style.display = "block";
-  }
-
   function displayTrayResult(data) {
+    if (data.error) {
+      resultContainer.innerHTML = <h2>Error</h2><p>${data.error}</p>;
+      resultContainer.style.display = "block";
+      return;
+    }
+
     const { predictions, total_price } = data;
-    let tableRows = predictions
+
+    // Lọc bỏ các item "nothing" trước khi hiển thị
+    const visiblePredictions = predictions.filter(
+      (p) => p.item_name !== "nothing"
+    );
+
+    // Dùng map với index để tạo lại số thứ tự tuần tự
+    let tableRows = visiblePredictions
       .map(
-        (p) => `
+        (p, index) => `
         <tr>
-            <td>${p.position}</td>
+            <td>${index + 1}</td>
             <td>${p.item_name}</td>
             <td>${p.price.toLocaleString("vi-VN")}</td>
-            <td>${Math.round(p.confidence)}%</td>
         </tr>`
       )
       .join("");
 
     resultContainer.innerHTML = `
-        <h2>Tray Prediction Result</h2>
+        <h2>Prediction Result</h2>
         <table class="result-table">
             <thead>
-                <tr><th>Position</th><th>Item</th><th>Price</th><th>Confidence</th></tr>
+                <tr><th>Position</th><th>Item</th><th>Price</th></tr>
             </thead>
             <tbody>${tableRows}</tbody>
             <tfoot>
                 <tr class="total-row">
                     <td colspan="2">Total Price</td>
-                    <td colspan="2">${total_price.toLocaleString(
+                    <td colspan="1">${total_price.toLocaleString(
                       "vi-VN"
                     )} VND</td>
                 </tr>
@@ -167,47 +139,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- Core Logic Functions ---
-
-  function redrawGrid() {
-    let canvas = document.getElementById("image-canvas-overlay");
-    if (!canvas) {
-      canvas = document.createElement("canvas");
-      canvas.id = "image-canvas-overlay";
-      dropContainer.appendChild(canvas);
-    }
-    const ctx = canvas.getContext("2d");
-    const { clientWidth: displayWidth, clientHeight: displayHeight } =
-      imagePreview;
-    canvas.width = displayWidth;
-    canvas.height = displayHeight;
-    ctx.clearRect(0, 0, displayWidth, displayHeight);
-
-    const startX = displayWidth * gridParams.marginX;
-    const startY = displayHeight * gridParams.marginY;
-    const gridWidth = displayWidth * (1 - 2 * gridParams.marginX);
-    const gridHeight = displayHeight * (1 - 2 * gridParams.marginY);
-    const cellWidth = gridWidth / gridParams.cols;
-    const cellHeight = gridHeight / gridParams.rows;
-
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
-    ctx.lineWidth = 2;
-    ctx.fillStyle = "rgba(255, 255, 255, 1)";
-    ctx.font = `bold ${Math.min(cellWidth, cellHeight) / 4}px Montserrat`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
-    ctx.shadowBlur = 5;
-
-    for (let i = 0; i < gridParams.rows; i++) {
-      for (let j = 0; j < gridParams.cols; j++) {
-        const x = startX + j * cellWidth;
-        const y = startY + i * cellHeight;
-        const number = i * gridParams.cols + j + 1;
-        ctx.strokeRect(x, y, cellWidth, cellHeight);
-        ctx.fillText(number.toString(), x + cellWidth / 2, y + cellHeight / 2);
-      }
-    }
-  }
 
   async function startCamera() {
     try {
@@ -242,92 +173,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }, "image/jpeg");
   }
 
-  async function predictTrayWithCroppedImages(button) {
-    const buttonSpan = button.querySelector("span");
-    buttonSpan.textContent = "Cropping...";
-
-    const scaleX = loadedImage.naturalWidth / imagePreview.clientWidth;
-    const scaleY = loadedImage.naturalHeight / imagePreview.clientHeight;
-
-    const cropPromises = [];
-    croppedImageDataURLs = [];
-
-    for (let i = 0; i < gridParams.rows; i++) {
-      for (let j = 0; j < gridParams.cols; j++) {
-        const sx =
-          (imagePreview.clientWidth * gridParams.marginX +
-            j *
-              ((imagePreview.clientWidth * (1 - 2 * gridParams.marginX)) /
-                gridParams.cols)) *
-          scaleX;
-        const sy =
-          (imagePreview.clientHeight * gridParams.marginY +
-            i *
-              ((imagePreview.clientHeight * (1 - 2 * gridParams.marginY)) /
-                gridParams.rows)) *
-          scaleY;
-        const sWidth =
-          ((imagePreview.clientWidth * (1 - 2 * gridParams.marginX)) /
-            gridParams.cols) *
-          scaleX;
-        const sHeight =
-          ((imagePreview.clientHeight * (1 - 2 * gridParams.marginY)) /
-            gridParams.rows) *
-          scaleY;
-
-        const promise = new Promise((resolve) => {
-          const canvas = document.createElement("canvas");
-          canvas.width = sWidth;
-          canvas.height = sHeight;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(
-            loadedImage,
-            sx,
-            sy,
-            sWidth,
-            sHeight,
-            0,
-            0,
-            sWidth,
-            sHeight
-          );
-          croppedImageDataURLs.push(canvas.toDataURL("image/jpeg"));
-          canvas.toBlob(
-            (blob) => resolve(new File([blob], `crop_${i}_${j}.jpg`)),
-            "image/jpeg"
-          );
-        });
-        cropPromises.push(promise);
-      }
-    }
-
-    const croppedFiles = await Promise.all(cropPromises);
-    buttonSpan.textContent = "Predicting...";
-
-    const formData = new FormData();
-    croppedFiles.forEach((file) => formData.append("files", file));
-
-    try {
-      const response = await fetch("/predict_tray", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
-      displayTrayResult(data);
-    } catch (error) {
-      alert("An error occurred during prediction.");
-    } finally {
-      // Ẩn các nút điều khiển lưới sau khi dự đoán xong
-      gridControlsContainer.style.display = "none";
-      gridControlsContainer.classList.remove("visible");
-
-      buttonSpan.textContent = "Predict Tray";
-      actionButtonsContainer.style.display = "none";
-      postPredictionButtons.style.display = "flex";
-      previewCropsButton.style.display = "inline-flex";
-    }
-  }
-
   // --- Event Listeners ---
 
   // File handling
@@ -354,83 +199,94 @@ document.addEventListener("DOMContentLoaded", () => {
   closeCameraButton.addEventListener("click", stopCamera);
   takePictureButton.addEventListener("click", takePicture);
 
-  // Predictions
+  // Main Prediction
   predictButton.addEventListener("click", async () => {
     if (!currentImageFile) {
-      // Sử dụng biến trạng thái
       alert("Please select an image first.");
       return;
     }
 
     const formData = new FormData();
-    formData.append("file", currentImageFile); // Sử dụng biến trạng thái
+    formData.append("file", currentImageFile);
     predictButton.querySelector("span").textContent = "Predicting...";
+    predictButton.disabled = true;
 
     try {
-      const response = await fetch("/predict", {
+      const response = await fetch("/detect_and_predict", {
         method: "POST",
         body: formData,
       });
       const data = await response.json();
-      displaySingleResult(data);
+
+      // Store original predictions and cropped images received from the backend
+      if (data.predictions) {
+        allPredictions = data.predictions; // <-- Lưu kết quả gốc
+      }
+      if (data.cropped_images) {
+        croppedImageDataURLs = data.cropped_images;
+        previewCropsButton.style.display = "inline-flex";
+      } else {
+        previewCropsButton.style.display = "none";
+      }
+
+      displayTrayResult(data); // Gọi hàm hiển thị kết quả
     } catch (error) {
-      alert("An error occurred.");
+      alert("An error occurred during prediction.");
+      console.error("Prediction error:", error);
     } finally {
-      predictButton.querySelector("span").textContent = "Predict Single";
+      predictButton.querySelector("span").textContent = "Predict";
+      predictButton.disabled = false;
       actionButtonsContainer.style.display = "none";
       postPredictionButtons.style.display = "flex";
-      previewCropsButton.style.display = "none";
     }
-  });
-
-  createGridButton.addEventListener("click", () => {
-    redrawGrid();
-    predictButton.style.display = "none";
-    createGridButton.style.display = "none";
-    predictTrayButton.style.display = "inline-flex";
-    gridControlsContainer.style.display = "block";
-    setTimeout(() => gridControlsContainer.classList.add("visible"), 10);
-  });
-
-  predictTrayButton.addEventListener("click", (e) =>
-    predictTrayWithCroppedImages(e.currentTarget)
-  );
-
-  // Grid controls
-  btnPlusX.addEventListener("click", () => {
-    gridParams.marginX = Math.max(0, gridParams.marginX - 0.02);
-    redrawGrid();
-  });
-  btnMinusX.addEventListener("click", () => {
-    gridParams.marginX = Math.min(0.49, gridParams.marginX + 0.02);
-    redrawGrid();
-  });
-  btnPlusY.addEventListener("click", () => {
-    gridParams.marginY = Math.max(0, gridParams.marginY - 0.02);
-    redrawGrid();
-  });
-  btnMinusY.addEventListener("click", () => {
-    gridParams.marginY = Math.min(0.49, gridParams.marginY + 0.02);
-    redrawGrid();
   });
 
   // Preview Modal
   previewCropsButton.addEventListener("click", () => {
     modalGrid.innerHTML = "";
-    croppedImageDataURLs.forEach((url) => {
+
+    // Kết hợp thông tin dự đoán và ảnh crop
+    const combinedItems = allPredictions.map((prediction, index) => ({
+      ...prediction,
+      image: croppedImageDataURLs[index],
+    }));
+
+    // Lọc bỏ các mục "nothing"
+    const visibleItems = combinedItems.filter(
+      (item) => item.item_name !== "nothing"
+    );
+
+    // Dùng forEach với index để tạo lại số thứ tự và caption
+    visibleItems.forEach((item, index) => {
+      const cropWrapper = document.createElement("div");
+      cropWrapper.className = "crop-item";
+
       const img = document.createElement("img");
-      img.src = url;
-      modalGrid.appendChild(img);
+      img.src = item.image;
+      img.alt = Item ${index + 1}: ${item.item_name};
+
+      const caption = document.createElement("p");
+      caption.className = "crop-caption";
+      caption.textContent = ${index + 1}. ${item.item_name}; // Sử dụng index + 1
+
+      cropWrapper.appendChild(img);
+      cropWrapper.appendChild(caption);
+      modalGrid.appendChild(cropWrapper);
     });
+
     previewModal.style.display = "block";
   });
   closeModalButton.addEventListener("click", () => {
     previewModal.style.display = "none";
   });
+  window.addEventListener("click", (event) => {
+    if (event.target == previewModal) {
+      previewModal.style.display = "none";
+    }
+  });
 
-  // --- Payment Modal Event Listeners ---
+  // Payment Modal
   document.addEventListener("click", async (event) => {
-    // Listener cho nút "Thanh toán ngay"
     if (event.target && event.target.id === "payment-button") {
       const amount = event.target.dataset.amount;
       if (!amount) return;
@@ -452,28 +308,20 @@ document.addEventListener("DOMContentLoaded", () => {
         const imageBlob = await response.blob();
         qrCodeImage.src = URL.createObjectURL(imageBlob);
       } catch (error) {
-        paymentDetails.textContent = "Lỗi khi tạo mã QR. Vui lòng thử lại.";
+        paymentDetails.textContent =
+          "Error creating QR code. Please try again.";
         qrCodeImage.src = "";
       }
     }
   });
 
-  // Listener cho nút X để đóng modal (hành động hủy)
   closePaymentModalBtn.addEventListener("click", () => {
     paymentModal.style.display = "none";
   });
 
-  // Listener cho nút "Thanh toán thành công" (hành động hoàn tất)
   paymentSuccessButton.addEventListener("click", () => {
-    paymentModal.style.display = "none"; // Đóng modal
-    resetUI(); // Quay về màn hình ban đầu
-  });
-
-  // Đóng modal preview crops khi click ra ngoài
-  window.addEventListener("click", (event) => {
-    if (event.target == previewModal) {
-      previewModal.style.display = "none";
-    }
+    paymentModal.style.display = "none";
+    resetUI();
   });
 
   // --- Initial Setup ---
