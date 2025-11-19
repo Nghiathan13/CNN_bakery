@@ -38,5 +38,9 @@
   "banh_da_lon": {
     "vietnamese_name": "Bánh da lợn",
     "price": 23000
+  },
+  "nothing": {
+    "vietnamese_name": "nothing",
+    "price": 0
   }
 }
