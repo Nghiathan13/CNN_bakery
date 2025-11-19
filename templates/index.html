@@ -15,7 +15,6 @@
       rel="icon"
       href="{{ url_for('static', filename='icons/cake_icon.svg') }}"
     />
-
     <title>Bakery Classifier</title>
   </head>
   <body>
@@ -23,7 +22,8 @@
     <header>
       <h1>Bakery Item Prediction</h1>
       <p class="subtitle">
-        Upload an image of a bakery item to classify it and get its price.
+        Upload an image of a bakery tray to classify all items and get the total
+        price.
       </p>
     </header>
 
@@ -67,53 +67,8 @@
 
         <div id="action-buttons-container" style="display: none">
           <button id="predict-button" class="btn btn-success">
-            <i class="fas fa-search"></i> <span>Predict Single</span>
+            <i class="fas fa-search"></i> <span>Predict</span>
           </button>
-          <button id="create-grid-button" class="btn btn-info">
-            <i class="fas fa-border-all"></i> <span>Create Grid</span>
-          </button>
-          <button
-            id="predict-tray-button"
-            class="btn btn-purple"
-            style="display: none"
-          >
-            <i class="fas fa-th-large"></i> <span>Predict Tray</span>
-          </button>
-        </div>
-
-        <div id="grid-controls-container" style="display: none">
-          <div class="grid-controls-y">
-            <button
-              id="grid-minus-y"
-              class="grid-control-btn"
-              title="Decrease Height"
-            >
-              -
-            </button>
-            <button
-              id="grid-plus-y"
-              class="grid-control-btn"
-              title="Increase Height"
-            >
-              +
-            </button>
-          </div>
-          <div class="grid-controls-x">
-            <button
-              id="grid-minus-x"
-              class="grid-control-btn"
-              title="Decrease Width"
-            >
-              -
-            </button>
-            <button
-              id="grid-plus-x"
-              class="grid-control-btn"
-              title="Increase Width"
-            >
-              +
-            </button>
-          </div>
         </div>
 
         <div id="post-prediction-buttons" style="display: none">
@@ -158,7 +113,6 @@
             alt="VietQR Code"
             style="max-width: 250px; height: auto; margin: auto; display: block"
           />
-
           <button
             id="payment-success-button"
             class="btn btn-primary"
@@ -186,7 +140,6 @@
       <p>&copy; 2025 - UEH - NHL</p>
     </footer>
 
-    <!-- The original JavaScript file, unchanged -->
     <script src="{{ url_for('static', filename='script.js') }}"></script>
   </body>
 </html>
